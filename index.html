@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Matrix Love — Ti Amuuuuu Anni <3 &lt;3</title>
+  <title>Matrix Love — Ti Amuuuuu Anni &lt;3</title>
+
   <style>
-    /* Reset y estilo básico */
-    html,body {
+    html, body {
       height: 100%;
       margin: 0;
       background: #000;
@@ -20,24 +20,22 @@
       height: 100%;
     }
 
-    /* Texto overlay opcional (centrado) */
     .overlay {
       position: absolute;
       top: 20px;
       left: 20px;
-      color: #7CFC00;
-      text-shadow: 0 0 10px rgba(124,252,0,0.9);
+      color: #bb86fc;
+      text-shadow: 0 0 12px rgba(187,134,252,0.9);
       font-weight: bold;
       letter-spacing: 2px;
       pointer-events: none;
     }
 
-    /* Pequeño control en pantalla */
     .controls {
       position: absolute;
       right: 20px;
       top: 20px;
-      color: #7CFC00;
+      color: #bb86fc;
       font-size: 14px;
       background: rgba(0,0,0,0.35);
       padding: 8px 10px;
@@ -47,8 +45,8 @@
 
     .controls button {
       background: transparent;
-      color: #7CFC00;
-      border: 1px solid rgba(124,252,0,0.25);
+      color: #bb86fc;
+      border: 1px solid rgba(187,134,252,0.35);
       padding: 6px 8px;
       border-radius: 6px;
       cursor: pointer;
@@ -59,16 +57,17 @@
       position: absolute;
       bottom: 12px;
       left: 12px;
-      color: #4caf50;
+      color: #9c27b0;
       font-size: 13px;
-      opacity: 0.8;
+      opacity: 0.85;
     }
   </style>
 </head>
+
 <body>
   <canvas id="matrix"></canvas>
 
-  <div class="overlay">T AMOOO &nbsp; · &nbsp; Anni ❤️‍🔥 &lt;3</div>
+  <div class="overlay">T AMOOO · Anni ❤️‍🔥 &lt;3</div>
 
   <div class="controls" aria-hidden="true">
     Velocidad:
@@ -78,125 +77,103 @@
     <button id="pause">Pausar</button>
   </div>
 
-  <div class="credits"> T <code>AMOOOO</code> MI MUJER </div>
+  <div class="credits">T <code>AMOOOO</code> MI MUJER</div>
 
 <script>
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d", { alpha: true });
 
-
-const canvas = document.getElementById('matrix');
-const ctx = canvas.getContext('2d', { alpha: true });
-
-// frases (puedes editar aquí)
 const PHRASES = ["T AMOOO", "MY WIFE <3"];
 
-// configuraciones iniciales
-let fontSize = 22;            // tamaño base de letra (px)
-let speedFactor = 1;          // multiplicador de velocidad
-let columns = [];             // columnas (estado por columna)
-let drops = [];               // posición vertical por columna (en unidades de fontSize)
-let phraseForCol = [];        // qué frase usa cada columna
-
+let fontSize = 22;
+let speedFactor = 1;
+let drops = [];
+let phraseForCol = [];
 let running = true;
 
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  // recalcular columnas
   const cols = Math.floor(canvas.width / fontSize);
   drops = new Array(cols);
   phraseForCol = new Array(cols);
+
   for (let i = 0; i < cols; i++) {
-    // pos inicial aleatoria para cada columna
     drops[i] = Math.random() * canvas.height / fontSize;
-    // asignar frase aleatoria a la columna
     phraseForCol[i] = PHRASES[Math.floor(Math.random() * PHRASES.length)];
   }
 }
 
-window.addEventListener('resize', () => {
-  // ajustar fontSize ligeramente en pantallas muy pequeñas
-  if (window.innerWidth < 420) fontSize = 16;
-  else fontSize = 22;
+window.addEventListener("resize", () => {
+  fontSize = window.innerWidth < 420 ? 16 : 22;
   ctx.font = fontSize + "px monospace";
   resizeCanvas();
 });
 
-// dibujo principal
 function drawMatrix() {
   if (!running) return;
 
-  // semitransparente para dejar rastro (efecto difuminado)
   ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // estilo de texto
   ctx.textBaseline = "top";
   ctx.font = fontSize + "px monospace";
 
-  // para cada columna
-  const cols = drops.length;
-  for (let i = 0; i < cols; i++) {
+  for (let i = 0; i < drops.length; i++) {
     const phrase = phraseForCol[i];
-    const phraseLen = phrase.length || 1;
-
-    // calcular carácter según la posición (ciclo sobre la frase)
-    const charIndex = Math.floor(drops[i]) % phraseLen;
-    const ch = phrase.charAt(charIndex);
-
     const x = i * fontSize;
-    const y = drops[i] * fontSize;
+    const baseY = drops[i] * fontSize;
 
-    // brillo mayor en el carácter principal
-    ctx.fillStyle = "rgba(180,255,150,0.98)"; // cabeza brillante
-    ctx.fillText(ch, x, y);
+    // dibuja la palabra completa
+    for (let j = 0; j < phrase.length; j++) {
+      const y = baseY - j * fontSize;
+      if (y < 0 || y > canvas.height) continue;
 
-    // dibujar algunos caracteres arriba (rastro) con menos intensidad
-    const trailCount = 6;
-    for (let t = 1; t <= trailCount; t++) {
-      const trailIndex = Math.floor(drops[i] - t) % phraseLen;
-      const tch = phrase.charAt((trailIndex + phraseLen) % phraseLen);
-      const ty = (drops[i] - t) * fontSize;
-      if (ty < 0) continue;
-      const fade = Math.max(0, 1 - t / (trailCount + 1));
-      ctx.fillStyle = `rgba(0, 150, 60, ${0.18 * fade})`;
-      ctx.fillText(tch, x, ty);
+      ctx.fillStyle =
+        j === 0
+          ? "rgba(187,134,252,0.95)"   // cabeza
+          : "rgba(106,27,154,0.6)";   // cuerpo
+
+      ctx.fillText(phrase[j], x, y);
     }
 
-    // mover la columna hacia abajo según velocidad
-    drops[i] += 0.25 * speedFactor + Math.random() * 0.6 * speedFactor;
+    // movimiento
+    drops[i] += 0.35 * speedFactor;
 
-    // reiniciar columna con cierta probabilidad cuando sale de la pantalla
-    if (drops[i] * fontSize > canvas.height + Math.random() * 1000) {
-      drops[i] = Math.random() * -10; // comienza un poco por encima
-      // chance de cambiar frase al reiniciar
-      if (Math.random() < 0.35) phraseForCol[i] = PHRASES[Math.floor(Math.random() * PHRASES.length)];
+    // reinicio cuando sale completo
+    if (baseY - phrase.length * fontSize > canvas.height) {
+      drops[i] = Math.random() * -20;
+      if (Math.random() < 0.35) {
+        phraseForCol[i] = PHRASES[Math.floor(Math.random() * PHRASES.length)];
+      }
     }
   }
 
   requestAnimationFrame(drawMatrix);
 }
 
-// controles UI
-document.getElementById('slower').addEventListener('click', () => {
-  speedFactor = Math.max(0.2, +(speedFactor - 0.2).toFixed(2));
-  document.getElementById('speedVal').textContent = speedFactor.toFixed(1);
-});
-document.getElementById('faster').addEventListener('click', () => {
-  speedFactor = Math.min(3, +(speedFactor + 0.2).toFixed(2));
-  document.getElementById('speedVal').textContent = speedFactor.toFixed(1);
-});
-document.getElementById('pause').addEventListener('click', (e) => {
-  running = !running;
-  e.target.textContent = running ? 'Pausar' : 'Reanudar';
-  if (running) requestAnimationFrame(drawMatrix);
-});
+// controles
+document.getElementById("slower").onclick = () => {
+  speedFactor = Math.max(0.2, speedFactor - 0.2);
+  speedVal.textContent = speedFactor.toFixed(1);
+};
 
-// inicialización
+document.getElementById("faster").onclick = () => {
+  speedFactor = Math.min(3, speedFactor + 0.2);
+  speedVal.textContent = speedFactor.toFixed(1);
+};
+
+document.getElementById("pause").onclick = e => {
+  running = !running;
+  e.target.textContent = running ? "Pausar" : "Reanudar";
+  if (running) requestAnimationFrame(drawMatrix);
+};
+
+// init
 ctx.font = fontSize + "px monospace";
 resizeCanvas();
 requestAnimationFrame(drawMatrix);
-
 </script>
 </body>
-</html>
+</html>3
